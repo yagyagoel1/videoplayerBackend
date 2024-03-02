@@ -2,14 +2,21 @@
   "name": "videoplayerbackend",
   "version": "1.0.0",
   "description": "creating a backend for videoplayer",
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon dist/index.js"
   },
   "keywords": [
     "javascript",
     "backend"
   ],
   "author": "yagyagoel",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
 }
