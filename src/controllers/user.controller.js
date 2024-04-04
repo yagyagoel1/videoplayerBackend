@@ -41,7 +41,7 @@ const registerUser = asyncHandler(async (req,res)=>{
      if([fullName,email,username,password].some(feild=>
         feild?.trim()===""))
         {
-            console.log([fullName,email,username,password].map(x=>x==""))
+            
 
             throw new ApiError(400,"All feilds are required")
         }
@@ -175,7 +175,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
           secure: true
       }
       const {accessToken,refeshToken } = await generateAccessAndRefreshToken(user._id)
-      console.log(accessToken)
+
       return res
       .status(200)
       .cookie("accessToken",accessToken ,options)
@@ -317,7 +317,7 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
             }
         }
     ])
-    console.log(channel)
+
     if(!channel?.length)
     throw new ApiError(404,"channel does not exists")
     return res
