@@ -1,5 +1,5 @@
-import { response } from "express";
-import { upload } from "../middlewares/multer.middleware.js";
+
+import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
@@ -8,8 +8,11 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import jwt from "jsonwebtoken"
 const generateAccessAndRefreshToken = async(userId)=>{
     try {
+        
         const user = await User.findById(userId);
+        
         const accessToken= await user.generateAccessToken()
+        
         const refreshToken =  await user.generateRefreshToken()
 
         user.refreshToken = refreshToken
@@ -123,7 +126,7 @@ const loginUser = asyncHandler(async (req,res)=>{
         200,
         {
             user: loggedUser,
-            acccessToken,
+            accessToken,
             refreshToken
         },
         "user logged in successfully"
@@ -131,9 +134,9 @@ const loginUser = asyncHandler(async (req,res)=>{
   )
 })
 const logoutUser =asyncHandler(async(req,res)=>{
-    User.findByIdAndUpdate(req.user._id,{
-        $set:{
-            refreshToken : undefined
+   await  User.findByIdAndUpdate(req.user._id,{
+        $unset:{
+            refreshToken : 1
         }
     },
     {
@@ -155,7 +158,9 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       {
       throw new ApiError(401,"unauthorized request")
       }
-      const decodedToken = await jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)   
+  
+      const decodedToken = await jwt.verify(incomingRefreshToken,process.env.REFRESH_TOKEN_SECRET)
+      
       const user  = await  User.findById(decodedToken?._id)
       if(!user)
       {
@@ -169,14 +174,15 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
           httpOnly: true,
           secure: true
       }
-      const {acccessToken,newRefeshToken } = await generateAccessAndRefreshToken(user._id)
+      const {accessToken,refeshToken } = await generateAccessAndRefreshToken(user._id)
+      console.log(accessToken)
       return res
       .status(200)
-      .cookie("accessToken",acccessToken ,options)
-      .cookie("refreshToken",newRefeshToken,options)
+      .cookie("accessToken",accessToken ,options)
+      .cookie("refreshToken",refeshToken,options)
       .json(
           new ApiResponse(200,
-              {acccessToken,refreshToken : newRefeshToken},"access token refreshed")
+              {accessToken,refreshToken },"access token refreshed")
   
       )
   } catch (error) {
@@ -205,12 +211,12 @@ const getCurrentUser = asyncHandler(async(req,res)=>{
 const updateAccountDetails = asyncHandler(async(req,res)=>{
     const {fullName,email} = req.body
 
-    if(!fullName||!email)
+    if(!(fullName||email))
     {
         throw new ApiError(400,"all feild are required")
 
     }
-    const  user  =User.findByIdAndUpdate(
+    const  user  =await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
@@ -242,7 +248,7 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
     const coverImageLocalPath =  req.file?.path;
     if(!coverImageLocalPath)
     throw new ApiError(400,"cover image file is missing");
- const coverImage = await uploadOnCloudinary(avatarLocalPath)
+ const coverImage = await uploadOnCloudinary(coverImageLocalPath)
   if(!coverImage.url)
   {
      throw new ApiError(400,"error while uploading cover image")
@@ -260,51 +266,53 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
 
     const channel = await User.aggregate([
         {
-            $match : {
-                username : username?.toLowerCase()
-            },
-            $lookup:{
-                from : "subscriptions",
-                localField : "_id",
-                foreignField : "channel",
-                as : "subscribers"
+            $match: {
+                username: username?.toLowerCase()
             }
         },
         {
-            $lookup:{
-                from : "subscriptions",
-                localField :"_id",
-                foreignField : "subscriber",
-                as : "subscribedTo"
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
             }
         },
         {
-            $addFields:{
-                subscribersCount : {
-                    $size: "subscribers",
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            }
+        },
+        {
+            $addFields: {
+                subscribersCount: {
+                    $size: "$subscribers"
                 },
-                channelsSubscribedTo:{
-                    $size : "subscribedTo"
+                channelsSubscribedToCount: {
+                    $size: "$subscribedTo"
                 },
-                isSubscribed :{
-                    $cond : {
-                        if:{$in : [req.user?._id,"$subscribers.subscriber"]},
-                        then : true,
-                        else : false
+                isSubscribed: {
+                    $cond: {
+                        if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                        then: true,
+                        else: false
                     }
                 }
             }
         },
         {
             $project: {
-                fullName : 1,
-                username : 1,
-                subscribersCount : 1,
-                channelsSubscribedTo:1,
-                isSubscribed : 1,
-                avatar : 1,
-                coverImage : 1,
-                email : 1
+                fullName: 1,
+                username: 1,
+                subscribersCount: 1,
+                channelsSubscribedToCount: 1,
+                isSubscribed: 1,
+                avatar: 1,
+                coverImage: 1,
+                email: 1
 
             }
         }
