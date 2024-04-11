@@ -1,8 +1,7 @@
 # creating backend for videoplayer
 
+\*photo and video uploading
 
-*photo and video uploading
+\*wrote industry standard code along with aggregation pipeline
 
-*wrote industry standard code along with aggregation pipeline 
-
-*added various routes 
+\*added various routes
