@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyJWT } from './../middlewares/auth.middleware.js';
 import { upload } from "../middlewares/multer.middleware.js";
-import { deleteVideo, getAllVideos, getVideoById, publishAVideo, togglePublishStatus, updateVideo } from "../controllers/video.controllers.js";
+import { deleteVideo, getAllVideos, getVideoById, publishAVideo, togglePublishStatus, updateVideo } from "../controllers/video.controller.js";
 import { checkOwner } from "../middlewares/owner.middleware.js";
 import { Video } from "../models/video.model.js";
 

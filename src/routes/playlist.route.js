@@ -1,6 +1,6 @@
 import express from "express"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
-import { addVideoToPlaylist, createPlaylist, deletePlaylist, getPlaylistById, getUserPlaylists, removeVideoFromPlaylist, updatePlaylist } from "../controllers/playlist.controllers.js";
+import { addVideoToPlaylist, createPlaylist, deletePlaylist, getPlaylistById, getUserPlaylists, removeVideoFromPlaylist, updatePlaylist } from "../controllers/playlist.controller.js";
 import { checkOwner } from "../middlewares/owner.middleware.js";
 import { Playlist } from "../models/playlist.model.js";
 const router = express.Router();

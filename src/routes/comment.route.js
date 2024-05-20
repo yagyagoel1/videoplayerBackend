@@ -1,6 +1,6 @@
 import express from "express"
 import { verifyJWT } from './../middlewares/auth.middleware.js';
-import { addComment, deleteComment, getComment, updateComment } from "../controllers/comment.controllers.js";
+import { addComment, deleteComment, getVideoComments, updateComment } from "../controllers/comment.controller.js";
 import { checkOwner } from "../middlewares/owner.middleware.js";
 import { Comment } from "../models/comment.model.js";
 const router = express.Router();
@@ -8,7 +8,7 @@ const router = express.Router();
 router.use(verifyJWT);
 
 router.route('/:videoId')
-    .get(getComment)
+    .get(getVideoComments)
     .post(addComment)
     
 
