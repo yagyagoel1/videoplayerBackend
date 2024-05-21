@@ -16,11 +16,11 @@ To set up this project locally, follow these steps:
 
   
    Open your terminal and run:
-   ```sh```
-  - git clone https://github.com/yagyagoel1/videoplayerBackend.git
-  - cd videoplayerBackend
-  - npm install
-  - npm run dev
+
+  - ```git clone https://github.com/yagyagoel1/videoplayerBackend.git```
+  - ```cd videoplayerBackend```
+  - ```npm install```
+  - ```npm run dev```
   - Ensure you have MongoDB installed and running. You can install MongoDB from the official MongoDB         
     installation guide.
 ## Routes
